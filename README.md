@@ -1,2 +1,2 @@
-# cursos
-Repositório com códigos de cursos realizados.
+# Cursos
+Repositório com códigos de cursos realizados para treinamento ou estudo em programação.
