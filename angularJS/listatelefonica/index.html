@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en" ng-app="listaTelefonica">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Lista Telefonica</title>
+    <link rel="stylesheet" href="lib/bootstrap/bootstrap.css">
+    <style>
+        .jumbotron {
+            width: 500px;
+            text-align: center;
+            margin-left: auto;
+            margin-right: auto;
+            margin-top: 20px;
+        }
+
+        .table {
+            margin-top: 20px;
+        }
+
+        .form-control {
+            margin-bottom: 5px;
+        }
+
+        .selecionado {
+            background-color: yellow;
+        }
+
+        .negrito {
+            font-weight: bold;
+        }
+    </style>
+    <script src="lib/angular/angular.js"></script>
+    <script>
+        angular.module("listaTelefonica", []);
+
+        angular
+            .module("listaTelefonica")
+            .controller("listaTelefonicaCtrl", function ($scope) {
+                $scope.app = "Lista Telefônica";
+                $scope.contatos = [
+                    { nome: "Pedro", telefone: "99998888", cor: "blue" },
+                    { nome: "Ana", telefone: "99998877", cor: "yellow" },
+                    { nome: "Maria", telefone: "99998866", cor: "red" }
+                ];
+                $scope.operadoras = [
+                    { nome: "Oi", codigo: 14, categoria: "Celular" },
+                    { nome: "Vivo", codigo: 15, categoria: "Celular" },
+                    { nome: "Tim", codigo: 41, categoria: "Celular" },
+                    { nome: "GVT", codigo: 25, categoria: "Fixo" },
+                    { nome: "Embratel", codigo: 21, categoria: "Fixo" }
+                ]
+                $scope.adicionarContato = function (contato) {
+                    $scope.contatos.push(angular.copy(contato));
+                    delete $scope.contato // limpar campos do form
+                    $scope.contatoForm.$setPristine() // retorna o form ao status de intocado
+                }
+                $scope.apagarContatos = function (contatos) {
+                    $scope.contatos = contatos.filter(function (contato) {
+                        if (!contato.selecionado) return contato
+                    });
+                }
+                $scope.isContatoSelecionado = function (contatos) {
+                    // função que retorna true se uma das avaliações for true
+                    return contatos.some(function (contato) {
+                        return contato.selecionado
+                    })
+                }
+            })
+    </script>
+</head>
+
+<body ng-controller="listaTelefonicaCtrl">
+
+    <div class="jumbotron">
+        <h3>{{app}}</h3>
+        <!-- Forma alternativa de utilizar as variáveis do escopo -->
+        <!-- <h4 ng-bind="app"></h4> -->
+        <table ng-hide="contatos.length == 0" class="table">
+            <tr>
+                <th></th>
+                <th>Nome</th>
+                <th>Telefone</th>
+                <th>Operadora</th>
+                <th></th>
+            </tr>
+
+            <!-- ng-class é utilizado para aplicar classe dinamicamente 
+                pode conter uma única referência ou uma lista de referências
+                que devem estar definidas no escopo:-->
+            <!-- ng-class="classe" -->
+            <!-- ng-class="[classe1, classe2]" -->
+            <!-- Para definir condições de aplicação da classe é necessário criar
+                uma referência de objeto onde a chave é a classe a ser aplicada
+                e o valor é a condicional da aplicação, sendo possível definir
+                vários estilos diferentes, exemplo: -->
+            <!-- ng-class="{selecionado: contato.selecionado, negrito: contato.selecionado}" -->
+            <!-- Porém, no caso de uma mesma condição aplicar mais de uma classe, é possível
+                tratar a chave como um conjunto de classes: -->
+            <tr ng-class="{'selecionado negrito': contato.selecionado}" ng-repeat="contato in contatos">
+                <!-- Forma padrão -->
+                <td> <input type="checkbox" ng-model="contato.selecionado">
+                </td>
+                <td>{{contato.nome}}</td>
+                <td>{{contato.telefone}}</td>
+                <td>{{contato.operadora.nome}}</td>
+                <td>
+                    <div style="width: 20px; height: 20px;" ng-style="{'background-color': contato.cor}"></div>
+                </td>
+
+                <!-- Forma curta -->
+                <!-- <td ng-repeat=" (key, value) in contato">
+                    {{value}}
+                </td> -->
+            </tr>
+        </table>
+        <hr>
+        <form name="contatoForm">
+            <input class="form-control" placeholder="Nome" type="text" ng-model="contato.nome" name="nome"
+                ng-required="true">
+            <input class="form-control" placeholder="Telefone" type="text" ng-model="contato.telefone" name="telefone"
+                ng-required="true">
+            <!-- A forma padrão da expression do ng-options é -->
+            <!-- operadora.nome for operadora in operadoras -->
+            <!-- desta forma será exibido o atributo nome, porém será selecionado 
+             o objeto inteiro. Porém é possível exibir um atributo do objeto e 
+             selecionar outro, utilizando a expression mais completa abaixo: -->
+            <!-- operadora.codigo as operadora.nome for operadora in operadoras -->
+            <!-- Possível agrupar as opções de acordo com um determinado atributo -->
+            <!-- A expressão fica então: -->
+            <!-- operadora.nome group by operadora.categoria for operadora in operadoras -->
+            <select class="form-control" ng-model="contato.operadora"
+                ng-options="operadora.nome for operadora in operadoras">
+                <option value="">Selecione uma operadora</option>
+
+            </select>
+            <div ng-show="contatoForm.nome.$invalid && contatoForm.nome.$dirty" class="alert alert-danger">Por favor,
+                preencha o campo nome!
+            </div>
+            <div ng-show="contatoForm.telefone.$invalid && contatoForm.telefone.$dirty" class="alert alert-danger">Por
+                favor, preencha o campo
+                telefone!
+            </div>
+            <!-- É possível bloquear um campo utilizando a diretiva ng-disabled, 
+                onde o parâmetro irá indicar uma diretiva que será avaliada
+                e caso o resultado seja true o elemento será bloqueado, exemplo: -->
+            <!-- ng-disabled="!contato.nome || !contato.telefone" -->
+            <button class="btn btn-primary btn-block" ng-click="adicionarContato(contato)"
+                ng-disabled="contatoForm.$invalid">Adicionar
+                Contato</button>
+            <!-- ng-show/ng-hide apenas aplica a propriedade disable no elemento HTML
+                enquanto o ng-if cria o elemento dinamincamente interagindo com a DOM,
+                desta forma, escolher qual utilizar deve ser objeto de análise quanto 
+                a necessidade de carregar o elemento ou não na memória -->
+            <button class="btn btn-danger btn-block" ng-click="apagarContatos(contatos)"
+                ng-show="isContatoSelecionado(contatos)">
+                Apagar Contatos</button>
+        </form>
+    </div>
+    <!-- Caso acesse o arquivo diretamente irá causar um erro por CORS
+        para evitar isso, é necessário utilizar um servidor http:
+        npm install http-server -->
+    <div ng-include="'footer.html'"></div>
+</body>
+
+</html>
