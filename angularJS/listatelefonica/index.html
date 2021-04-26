@@ -5,68 +5,21 @@
     <meta charset="UTF-8">
     <title>Lista Telefonica</title>
     <link rel="stylesheet" href="lib/bootstrap/bootstrap.css">
-    <style>
-        .jumbotron {
-            width: 500px;
-            text-align: center;
-            margin-left: auto;
-            margin-right: auto;
-            margin-top: 20px;
-        }
-
-        .table {
-            margin-top: 20px;
-        }
-
-        .form-control {
-            margin-bottom: 5px;
-        }
-
-        .selecionado {
-            background-color: yellow;
-        }
-
-        .negrito {
-            font-weight: bold;
-        }
-    </style>
+    <link rel="stylesheet" href="css/app.css">
     <script src="lib/angular/angular.js"></script>
+    <script src="lib/angular/angular-messages.js"></script>
+    <script src="js/app.js"></script>
+    <script src="js/controllers/listaTelefonicaCtrl.js"></script>
+    <script src="js/services/contatoAPIServices.js"></script>
+    <script src="js/services/operadorasAPIServices.js"></script>
+    <script src="js/services/serialGeneratorService.js"></script>
+    <script src="js/config/serialGeneratorConfig.js"></script>
+    <script src="js/value/configValue.js"></script>
+    <!-- importar apenas um dos arquivos de locale -->
+    <script src="lib/angular/i18n/angular-locale_pt-br.js"></script>
+    <!-- <script src="lib/angular/i18n/angular-locale_fr-fr.js"></script> -->
     <script>
-        angular.module("listaTelefonica", []);
 
-        angular
-            .module("listaTelefonica")
-            .controller("listaTelefonicaCtrl", function ($scope) {
-                $scope.app = "Lista Telefônica";
-                $scope.contatos = [
-                    { nome: "Pedro", telefone: "99998888", cor: "blue" },
-                    { nome: "Ana", telefone: "99998877", cor: "yellow" },
-                    { nome: "Maria", telefone: "99998866", cor: "red" }
-                ];
-                $scope.operadoras = [
-                    { nome: "Oi", codigo: 14, categoria: "Celular" },
-                    { nome: "Vivo", codigo: 15, categoria: "Celular" },
-                    { nome: "Tim", codigo: 41, categoria: "Celular" },
-                    { nome: "GVT", codigo: 25, categoria: "Fixo" },
-                    { nome: "Embratel", codigo: 21, categoria: "Fixo" }
-                ]
-                $scope.adicionarContato = function (contato) {
-                    $scope.contatos.push(angular.copy(contato));
-                    delete $scope.contato // limpar campos do form
-                    $scope.contatoForm.$setPristine() // retorna o form ao status de intocado
-                }
-                $scope.apagarContatos = function (contatos) {
-                    $scope.contatos = contatos.filter(function (contato) {
-                        if (!contato.selecionado) return contato
-                    });
-                }
-                $scope.isContatoSelecionado = function (contatos) {
-                    // função que retorna true se uma das avaliações for true
-                    return contatos.some(function (contato) {
-                        return contato.selecionado
-                    })
-                }
-            })
     </script>
 </head>
 
@@ -76,12 +29,15 @@
         <h3>{{app}}</h3>
         <!-- Forma alternativa de utilizar as variáveis do escopo -->
         <!-- <h4 ng-bind="app"></h4> -->
+        <input class="form-control" type="text" ng-model="criterioDeBusca" placeholder="O que você está buscando?">
         <table ng-hide="contatos.length == 0" class="table">
             <tr>
                 <th></th>
-                <th>Nome</th>
-                <th>Telefone</th>
+                <th>Serial</th>
+                <th><a href="" ng-click="ordenarPor('nome')">Nome</a></th>
+                <th><a href="" ng-click="ordenarPor('telefone')">Telefone</a></th>
                 <th>Operadora</th>
+                <th>Data</th>
                 <th></th>
             </tr>
 
@@ -97,13 +53,20 @@
             <!-- ng-class="{selecionado: contato.selecionado, negrito: contato.selecionado}" -->
             <!-- Porém, no caso de uma mesma condição aplicar mais de uma classe, é possível
                 tratar a chave como um conjunto de classes: -->
-            <tr ng-class="{'selecionado negrito': contato.selecionado}" ng-repeat="contato in contatos">
+            <!-- É possível aplicar o filtro a apenas um dos campos, basta usar um objeto como parametro 
+                <tr ng-class="{'selecionado negrito': contato.selecionado}" ng-repeat="contato in contatos | filter:{nome: criterioDeBusca}"> -->
+            <!-- É possível encadear os filtros por exemplo vamos filtrar e ordenar por nome e um novo parâmetro -->
+                <tr ng-class="{'selecionado negrito': contato.selecionado}" 
+                ng-repeat="contato in contatos | filter:criterioDeBusca | orderBy:criterioDeOrdenacao:direcaoDaOrdenacao">
                 <!-- Forma padrão -->
-                <td> <input type="checkbox" ng-model="contato.selecionado">
-                </td>
-                <td>{{contato.nome}}</td>
+                <td> <input type="checkbox" ng-model="contato.selecionado"></td>
+                <td>{{contato.serial}}</td>
+                <!-- Para adicionar filtros basta colocar o caractere | e inserir o filtro-->
+                <td>{{contato.nome}}</td>  
                 <td>{{contato.telefone}}</td>
-                <td>{{contato.operadora.nome}}</td>
+                <td>{{contato.operadora.nome | lowercase}}</td>
+                <!-- para passar parâmetro a um filtro deve usar o caractere : -->
+                <td>{{contato.data | date:'dd/mm/yyyy HH:mm'}}</td>
                 <td>
                     <div style="width: 20px; height: 20px;" ng-style="{'background-color': contato.cor}"></div>
                 </td>
@@ -131,18 +94,30 @@
             <!-- A expressão fica então: -->
             <!-- operadora.nome group by operadora.categoria for operadora in operadoras -->
             <select class="form-control" ng-model="contato.operadora"
-                ng-options="operadora.nome for operadora in operadoras">
+                ng-options="operadora.nome + ' ( ' + (operadora.preco | currency) + ' ) ' for operadora in operadoras | orderBy:'nome'">
                 <option value="">Selecione uma operadora</option>
 
             </select>
-            <div ng-show="contatoForm.nome.$error.required && contatoForm.nome.$dirty" 
+            <!-- Forma padrão de configurar as mensagens de erro -->
+            <!-- <div ng-show="contatoForm.nome.$error.required && contatoForm.nome.$dirty" 
                 class="alert alert-danger">Por favor, preencha o campo nome!</div>
             <div ng-show="contatoForm.nome.$error.minlength" class="alert alert-danger">
-                O campo nome deve ter no mínimo 10 caracteres!</div>
+                O campo nome deve ter no mínimo 10 caracteres!</div> -->
+
+            <!-- É possível utilizar uma biblioteca para a mesma finalidade ng-messages -->
+            <div ng-show="contatoForm.nome.$dirty" ng-messages="contatoForm.nome.$error">
+                <div ng-message="required" class="alert alert-danger">
+                    Por favor, preencha o campo nome!</div>
+                <div ng-message="minlength" class="alert alert-danger">
+                    O campo nome deve ter no mínimo 10 caracteres!</div>
+            </div>
+
             <div ng-show="contatoForm.telefone.$error.required && contatoForm.telefone.$dirty" 
-                class="alert alert-danger">Por favor, preencha o campo telefone!</div>
+            class="alert alert-danger">Por favor, preencha o campo telefone!</div>
             <div ng-show="contatoForm.telefone.$error.pattern" class="alert alert-danger">
             O campo do telefone deve seguir os seguintes padrões (00) 00000-0000 ou (00) 0000-0000 !</div>
+
+
             <!-- É possível bloquear um campo utilizando a diretiva ng-disabled, 
                 onde o parâmetro irá indicar uma diretiva que será avaliada
                 e caso o resultado seja true o elemento será bloqueado, exemplo: -->
@@ -160,7 +135,7 @@
     <!-- Caso acesse o arquivo diretamente irá causar um erro por CORS
         para evitar isso, é necessário utilizar um servidor http:
         npm install http-server -->
-    <div ng-include="'footer.html'"></div>
+    <div ng-include="'view/footer.html'"></div>
 </body>
 
 </html>
