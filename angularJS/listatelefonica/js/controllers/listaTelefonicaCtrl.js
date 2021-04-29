@@ -4,7 +4,6 @@ angular
 // o HTTP não é mais necessários pois ele passa a ser importardo nos services
 // Os filtros não são mais colocados, pois passou a ser utilizado o servidor
 .controller("listaTelefonicaCtrl", function ($scope, /*$filter, uppercaseFilter, $http,*/ contatosAPI, operadorasAPI, serialGenerator) {
-    console.log(serialGenerator.generate())
     $scope.app = "Lista Telefônica";
     // $scope.contatos = [
     //     // existem duas formas de invocar os filtros
@@ -25,6 +24,8 @@ angular
     var carregarContatos = function() {
        contatosAPI.getContatos().success(function(data, status) {
             $scope.contatos = data
+        }).error(function(data, status) {
+            $scope.error = `Aconteceu um problema (Status ${status}): ${data}`
         })
     }
 
@@ -38,7 +39,6 @@ angular
     $scope.adicionarContato = function (contato) {
 
         contato.serial = serialGenerator.generate()
-        contato.data = new Date()
         // forma de adicionar o contato quando a página armazena as informações
         // em memória.
         // $scope.contatos.push(angular.copy(contato));
