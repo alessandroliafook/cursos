@@ -3,11 +3,12 @@ var app = express();
 
 app.use(express.static(__dirname + '/public'));
 app.use(express.bodyParser());
+var id = 3
 
 var contatos = [
-	{nome: "Bruno da silva", telefone: "9999-2222", data: new Date(), operadora: {nome: "Oi", codigo: 14, categoria: "Celular"}},
-	{nome: "sandra MARIA OLIVEIRA", telefone: "9999-3333", data: new Date(), operadora: {nome: "Vivo", codigo: 15, categoria: "Celular"}},
-	{nome: "carlos machado", telefone: "9999-9999", data: new Date(), operadora: {nome: "Tim", codigo: 41, categoria: "Celular"}}
+	{id: 1, nome: "Bruno da silva", telefone: "9999-2222", data: new Date(), operadora: {nome: "Oi", codigo: 14, categoria: "Celular"}},
+	{id: 2, nome: "sandra MARIA OLIVEIRA", telefone: "9999-3333", data: new Date(), operadora: {nome: "Vivo", codigo: 15, categoria: "Celular"}},
+	{id: 3, nome: "carlos machado", telefone: "9999-9999", data: new Date(), operadora: {nome: "Tim", codigo: 41, categoria: "Celular"}}
 ];
 var operadoras = [
 	{nome: "Oi", codigo: 14, categoria: "Celular", preco: 2},
@@ -31,6 +32,7 @@ app.get('/contatos', function(req, res) {
 });
 
 app.post('/contatos', function(req, res) {
+  req.body.id = ++id
   contatos.push(req.body);
   res.json(true);
 });
@@ -38,3 +40,7 @@ app.post('/contatos', function(req, res) {
 app.get('/operadoras', function(req, res) {
   res.json(operadoras);
 });
+
+app.get('/contatos/:id', function(req, res) {
+    res.json(contatos.filter(x => x.id == req.params.id)[0])
+})

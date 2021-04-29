@@ -19,7 +19,8 @@ angular.module("listaTelefonica").directive("uiDate", function (dateFilter) {
 
             // forma de controlar o formulário aplicando uma máscara
             element.bind("keyup", function () {
-                ctrl.$setViewValue(_formatDate(ctrl.$viewValue))
+                if(ctrl.$viewValue)
+                    ctrl.$setViewValue(_formatDate(ctrl.$viewValue))
                 ctrl.$render()
             })
 
