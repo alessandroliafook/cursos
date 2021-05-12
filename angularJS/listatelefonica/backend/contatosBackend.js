@@ -42,5 +42,12 @@ app.get('/operadoras', function(req, res) {
 });
 
 app.get('/contatos/:id', function(req, res) {
-    res.json(contatos.filter(x => x.id == req.params.id)[0])
+    contatos.forEach(function(contato) {
+        if(contato.id == req.params.id) {
+            res.json(contato)
+            return
+        }
+    })
+       
+    res.status(404).end()
 })

@@ -1,3 +1,4 @@
+// Apenas é possível realizar a configuração de serviços do tipo Provider
 angular.module("listaTelefonica").config(function($routeProvider){
 
     $routeProvider
@@ -27,6 +28,9 @@ angular.module("listaTelefonica").config(function($routeProvider){
                     return contatosAPI.getContato($route.current.params.id)
                 }
             }
+        })
+        .when("/error", {
+            templateUrl: "view/error.html",
         })
 
     // não aceita encadeamento de funções

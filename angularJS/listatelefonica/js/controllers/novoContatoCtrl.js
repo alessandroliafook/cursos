@@ -11,6 +11,6 @@ angular
                 }
             ).error(function (data, status) {
                 console.log(data.message)
-            });
+            })
         }
     })
