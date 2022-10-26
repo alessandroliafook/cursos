@@ -1,0 +1,22 @@
+.MeuMega input {
+    font-size: 1.4rem;
+    width: 40px;
+}
+
+.MeuMega button {
+    margin: 15px;
+    height: 40px;
+    width: 70px;
+    border-radius: 10%;
+    background-color: #f09902;
+    color: #fff;
+    font-size: 1rem;
+}
+
+.MeuMega h3 {
+    margin: 15px;
+}
+
+.MeuMega strong {
+    margin: 5px;
+}

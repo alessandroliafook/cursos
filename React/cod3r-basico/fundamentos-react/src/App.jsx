@@ -14,6 +14,9 @@ import UsuarioInfo from "./components/condicional/UsuarioInfo";
 import DiretaPai from "./components/comunicacao/DiretaPai";
 import IndiretaPai from "./components/comunicacao/IndiretaPai";
 import Input from "./components/formulario/Input";
+import Contador from "./components/contador/Contador";
+import MeuMega from "./components/meuMega/MeuMega";
+import Mega from "./components/mega/Mega";
 
 // É necessário retornar o default para que a função possa ser anônima nem arrow
 // possível definir a arrow de várias formas
@@ -26,7 +29,19 @@ export default _ =>
         <h1>Fundamentos React</h1>
         <div className="Cards">
 
-            <Card titulo="#11 - Componente Controlado" color="#E45F56">
+            <Card titulo="#13 - Minha Megasena" color="#89006E">
+                <Mega qtde={8}></Mega>
+            </Card>
+
+            <Card titulo="#13.1 - Minha Megasena" color="#E69D20">
+                <MeuMega></MeuMega>
+            </Card>
+
+            <Card titulo="#12 - Contador" color="#424242">
+                <Contador numeroInicial={10}></Contador>
+            </Card>
+
+            <Card titulo="#11 - Componente Controlado (Input)" color="#E45F56">
                 <Input></Input>
             </Card>
 
