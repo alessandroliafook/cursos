@@ -1,0 +1,6 @@
+.App {
+    display: flex;
+    /*atributo que define percentual da tela a ser ocupada
+    pela classe*/
+    height: 100vh;
+}
